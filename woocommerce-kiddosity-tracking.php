@@ -4,16 +4,15 @@
    Plugin URI: http://wordpress.org/extend/plugins/woocommerce-kiddosity-tracking/
    Version: 0.1
    Author: Kiddosity
-   Description: nada
+   Description: Woocommerce plugin for pixel tracking on Kiddosity marketplace
    Text Domain: wkt
    License: GPLv3
   */
 
 
 
-add_action( 'woocommerce_thankyou', 'my_custom_tracking' );
-
-function my_custom_tracking( $order_id ) {
+add_action( 'woocommerce_thankyou', 'wkt_custom_tracking' );
+function wkt_custom_tracking( $order_id ) {
 
 	// Lets grab the order
 	$order = wc_get_order( $order_id );
@@ -24,10 +23,16 @@ function my_custom_tracking( $order_id ) {
 	 */
 	 
 	// This is the order total
-	$order->get_total();
- 
+	$tot = $order->get_total();
+	
+	
+    wp_enqueue_script( 'wkt-thankyou', plugin_dir_url( __FILE__ ) . 'js/thankyou.js', array(), false, true );
+	wp_add_inline_script( 'wkt-thankyou', 'var kd_total = '.$tot.'; var kd_client = 123123;','before' );
+	
+	/*
 	// This is how to grab line items from the order 
 	$line_items = $order->get_items();
+
 
 	// This loops over line items
 	foreach ( $line_items as $item ) {
@@ -46,4 +51,18 @@ function my_custom_tracking( $order_id ) {
 		// Line item subtotal (before discounts)
 		$subtotal = $order->get_line_subtotal( $item, true, true );
 	}
+	*/
 }
+
+
+
+
+function wkt_footer_scripts() {
+	?>
+	<script type="text/javascript">
+	var kd_token = decodeURIComponent((new RegExp('[?|&]kiddotoken=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+	if(kd_token){ var d = new Date(); d.setYear(d.getFullYear()+1);document.cookie = "kiddo=" + kd_token + "; expires="+d.toUTCString()+"; path=/"; }
+	</script>
+	<?php
+}
+add_action( 'wp_footer', 'wkt_footer_scripts' );
