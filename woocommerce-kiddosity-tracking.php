@@ -25,9 +25,10 @@ function wkt_custom_tracking( $order_id ) {
 	// This is the order total
 	$tot = $order->get_total();
 	
+	$client_id = esc_attr( get_option('client_id') );
 	
     wp_enqueue_script( 'wkt-thankyou', plugin_dir_url( __FILE__ ) . 'js/thankyou.js', array(), false, true );
-	wp_add_inline_script( 'wkt-thankyou', 'var kd_total = '.$tot.'; var kd_client = 123123;','before' );
+	wp_add_inline_script( 'wkt-thankyou', 'var kd_total = '.$tot.'; var kd_client = "'+$client_id+'"; var kd_order="'+$order_id+'";','before' );
 	
 	/*
 	// This is how to grab line items from the order 
@@ -66,3 +67,43 @@ function wkt_footer_scripts() {
 	<?php
 }
 add_action( 'wp_footer', 'wkt_footer_scripts' );
+
+
+
+
+
+
+
+function wkt_create_menu() {
+	add_menu_page('Kiddosity', 'Ajustes Kiddosity', 'administrator', __FILE__, 'wkt_settings_page' , plugins_url('/images/icon.png', __FILE__) );
+	add_action( 'admin_init', 'register_wkt_settings' );
+}
+add_action('admin_menu', 'wkt_create_menu');
+
+
+function register_wkt_settings() {
+	register_setting( 'wkt-settings-group', 'client_id' );
+}
+
+function wkt_settings_page() {
+?>
+<div class="wrap">
+<h1>Kiddosity</h1>
+<p>Si necesita ayuda o desconoce su ID de cliente, póngase en contacto con nosotros en <a href="mailto:info@kiddosity.com" target="_blank">info@kiddosity.com</a>.
+<form method="post" action="options.php">
+    <?php settings_fields( 'wkt-settings-group' ); ?>
+    <?php do_settings_sections( 'wkt-settings-group' ); ?>
+    <table class="form-table">
+        <tr valign="top">
+        <th scope="row">ID de cliente</th>
+        <td><input type="text" name="client_id" value="<?php echo esc_attr( get_option('client_id') ); ?>" /></td>
+        </tr>
+    </table>
+    
+    <?php submit_button(); ?>
+
+</form>
+<a href="https://kiddosity.com" target="_blank">kiddosity.com</a>
+</div>
+<?php }
+
