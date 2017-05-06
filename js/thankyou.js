@@ -9,5 +9,6 @@ var kiddo_cookie = kd_cookie('kiddo');
 var scr = document.createElement('script');
 var prev = document.getElementsByTagName('script')[0];
 scr.async = 1;
-scr.src = 'https://kiddosity.com/tracking/'+btoa(kd_client+'&'+kiddo_cookie+'&'+kd_total);
+scr.src = 'https://kiddosity.com/'+kd_service+'/'+btoa(kd_client+'&'+kiddo_cookie+'&'+kd_total);
+//scr.src = 'http://devel2-kiddosity.com/'+kd_service+'/'+btoa(kd_client+'&'+kiddo_cookie+'&'+kd_total);
 prev.parentNode.insertBefore(scr, prev);

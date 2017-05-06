@@ -28,7 +28,7 @@ function wkt_custom_tracking( $order_id ) {
 	$client_id = esc_attr( get_option('client_id') );
 	
     wp_enqueue_script( 'wkt-thankyou', plugin_dir_url( __FILE__ ) . 'js/thankyou.js', array(), false, true );
-	wp_add_inline_script( 'wkt-thankyou', 'var kd_total = '.$tot.'; var kd_client = "'+$client_id+'"; var kd_order="'+$order_id+'";','before' );
+	wp_add_inline_script( 'wkt-thankyou', 'var kd_total = '.$tot.'; var kd_client = "'+$client_id+'"; var kd_order="'+$order_id+'"; var kd_service="tracking"','before' );
 	
 	/*
 	// This is how to grab line items from the order 
@@ -59,12 +59,25 @@ function wkt_custom_tracking( $order_id ) {
 
 
 function wkt_footer_scripts() {
-	?>
-	<script type="text/javascript">
-	var kd_token = decodeURIComponent((new RegExp('[?|&]kiddotoken=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
-	if(kd_token){ var d = new Date(); d.setYear(d.getFullYear()+1);document.cookie = "kiddo=" + kd_token + "; expires="+d.toUTCString()+"; path=/"; }
-	</script>
-	<?php
+	// kiddo-check-chivUdvHcyLLyebP3GfSg33VHqk
+	if (isset($_GET["kiddotoken"])){
+		
+		?>
+			<script type="text/javascript">
+			var kd_token = decodeURIComponent((new RegExp('[?|&]kiddotoken=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+			if(kd_token){ var d = new Date(); d.setYear(d.getFullYear()+1);document.cookie = "kiddo=" + kd_token + "; expires="+d.toUTCString()+"; path=/"; }
+			</script>
+		<?php
+			
+		if ($_GET["kiddotoken"]=='kiddo-check-chivUdvHcyLLyebP3GfSg33VHqk'){
+			$client_id = get_option('client_id');
+			$order_id = '0000';
+			?>
+			<script type="text/javascript"><?php 
+				echo 'var kd_total = 1; var kd_client = "'.$client_id.'"; var kd_order="'.$order_id.'"; var kd_service="check";';
+			?></script><script type="text/javascript" src="<?php echo plugin_dir_url( __FILE__ ) . 'js/thankyou.js'; ?>"></script><?php
+		}
+	}
 }
 add_action( 'wp_footer', 'wkt_footer_scripts' );
 
@@ -75,7 +88,7 @@ add_action( 'wp_footer', 'wkt_footer_scripts' );
 
 
 function wkt_create_menu() {
-	add_menu_page('Kiddosity', 'Ajustes Kiddosity', 'administrator', __FILE__, 'wkt_settings_page' , plugins_url('/images/icon.png', __FILE__) );
+	add_menu_page('Kiddosity', 'Ajustes Kiddosity', 'administrator', __FILE__, 'wkt_settings_page' , 'dashicons-admin-tools' );
 	add_action( 'admin_init', 'register_wkt_settings' );
 }
 add_action('admin_menu', 'wkt_create_menu');
